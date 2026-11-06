@@ -1,0 +1,15 @@
+Use the `@TERMUX_APP__DATA_DIR@` placeholder instead of the literal upstream
+prefix in the `termux-exec-ld-preload-lib.in` comment, so the generated
+`bin/termux-exec-ld-preload-lib` script does not embed `com.termux` prefix
+text, which the app's bootstrap prefix verification rejects.
+
+--- a/app/main/scripts/termux/api/termux_exec/service/ld_preload/termux-exec-ld-preload-lib.in
++++ b/app/main/scripts/termux/api/termux_exec/service/ld_preload/termux-exec-ld-preload-lib.in
+@@ -101,6 +101,6 @@
+     rm -f "$TERMUX__PREFIX/lib/libtermux-exec-ld-preload.so" || return $?
+
+-    # Prevent `CANNOT LINK EXECUTABLE "cp": library "/data/data/com.termux/files/usr/lib/libtermux-exec-ld-preload.so" not found: needed by main executable`
++    # Prevent `CANNOT LINK EXECUTABLE "cp": library "@TERMUX_APP__DATA_DIR@/files/usr/lib/libtermux-exec-ld-preload.so" not found: needed by main executable`
+     unset LD_PRELOAD || return $?
+
+     cp -a "$ld_preload_file" "$TERMUX__PREFIX/lib/libtermux-exec-ld-preload.so" || return $?
