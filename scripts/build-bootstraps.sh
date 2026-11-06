@@ -401,7 +401,11 @@ main() {
 		termux_step_handle_buildarch
 
 		if [[ $FORCE_BUILD_PACKAGES == "1" ]]; then
-			rm -f "$TERMUX_BUILT_PACKAGES_DIRECTORY_FOR_ARCH"/*
+			if [[ "$TERMUX_BUILT_PACKAGES_DIRECTORY" != "/data/data/.built-packages" ]]; then
+				echo "Unsafe built packages directory '$TERMUX_BUILT_PACKAGES_DIRECTORY'." 1>&2
+				return 1
+			fi
+			rm -f "$TERMUX_BUILT_PACKAGES_DIRECTORY"/*
 			rm -f "$TERMUX_BUILT_DEBS_DIRECTORY"/*
 		fi
 
