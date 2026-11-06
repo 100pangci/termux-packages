@@ -17,6 +17,10 @@ export TERMUX_SCRIPTDIR=$(realpath "$(dirname "$(realpath "$0")")/../")
 . "${TERMUX_SCRIPTDIR}"/scripts/properties.sh
 . "${TERMUX_SCRIPTDIR}"/scripts/build/termux_step_handle_buildarch.sh
 
+# This fork builds the apt-android-7 bootstrap variant.
+export TERMUX_PACKAGE_FORMAT=debian
+export TERMUX_PACKAGE_MANAGER=apt
+
 BOOTSTRAP_TMPDIR=$(mktemp -d "${TMPDIR:-/tmp}/bootstrap-tmp.XXXXXXXX")
 
 # By default, bootstrap archives are compatible with Android >=7.0
@@ -483,7 +487,7 @@ main() {
 		extract_debs "$TERMUX_ARCH" || return $?
 
 		# Add termux bootstrap second stage files
-		add_termux_bootstrap_second_stage_files "$package_arch"
+		add_termux_bootstrap_second_stage_files "$TERMUX_ARCH"
 
 		# Create bootstrap archive.
 		create_bootstrap_archive "$TERMUX_ARCH" || return $?

@@ -22,7 +22,27 @@ TERMUX_PKG_DEPENDS="bzip2, coreutils, curl, dash, diffutils, findutils, gawk, gr
 # Optional packages that are distributed as part of bootstrap archives.
 TERMUX_PKG_RECOMMENDS="ed, dos2unix, inetutils, net-tools, patch, unzip"
 
+termux_step_post_get_source() {
+	local scripts_dir="$TERMUX_PKG_SRCDIR/scripts"
+
+	# Intent package names use TERMUX_APP_PACKAGE; Java class names use the app namespace.
+	sed -i'' -e "s|@TERMUX_APP_PACKAGE@.app.TermuxOpenReceiver|${TERMUX_APP__NAMESPACE}.app.TermuxOpenReceiver|g" \
+		"$scripts_dir/termux-open.in"
+	for script in termux-wake-lock.in termux-wake-unlock.in termux-reset.in; do
+		sed -i'' -e "s|@TERMUX_APP_PACKAGE@.app.TermuxService|${TERMUX_APP__NAMESPACE}.app.TermuxService|g" \
+			"$scripts_dir/$script"
+	done
+
+	grep -Fq "${TERMUX_APP__NAMESPACE}.app.TermuxOpenReceiver" "$scripts_dir/termux-open.in" || return 1
+	for script in termux-wake-lock.in termux-wake-unlock.in termux-reset.in; do
+		grep -Fq "${TERMUX_APP__NAMESPACE}.app.TermuxService" "$scripts_dir/$script" || return 1
+	done
+}
+
 termux_step_pre_configure() {
+	export TERMUX_APP_PACKAGE
+	export TERMUX_BASE_DIR TERMUX_CACHE_DIR TERMUX_PREFIX TERMUX_ANDROID_HOME
+	export TERMUX_PACKAGE_FORMAT TERMUX_PACKAGE_MANAGER
 	autoreconf -vfi
 }
 

@@ -13,8 +13,20 @@ TERMUX_PKG_CONFLICTS="termux-tools (<< 0.51)"
 _GRADLE_VERSION=8.10.2
 
 termux_step_post_get_source() {
-	sed -i'' -E -e "s|\@TERMUX_PREFIX\@|${TERMUX_PREFIX}|g" "$TERMUX_PKG_SRCDIR/am-libexec-packaged"
-	sed -i'' -E -e "s|\@TERMUX_APP_PACKAGE\@|${TERMUX_APP_PACKAGE}|g" "$TERMUX_PKG_SRCDIR/app/src/main/java/com/termux/termuxam/FakeContext.java"
+	local am_script="$TERMUX_PKG_SRCDIR/am-libexec-packaged"
+	local gradle_file="$TERMUX_PKG_SRCDIR/app/build.gradle"
+
+	sed -i'' -E -e "s|\@TERMUX_PREFIX\@|${TERMUX_PREFIX}|g" \
+		-e "s|^#!/data/data/com.termux/files/usr/bin/sh$|#!${TERMUX_PREFIX}/bin/sh|" \
+		"$am_script"
+	sed -i'' -E -e "s|\@TERMUX_APP_PACKAGE\@|${TERMUX_APP_PACKAGE}|g" \
+		"$TERMUX_PKG_SRCDIR/app/src/main/java/com/termux/termuxam/FakeContext.java"
+	sed -i'' -E -e "/buildConfigField \"String\", \"TERMUX_PACKAGE_NAME\"/s|com\\.termux|${TERMUX_APP_PACKAGE}|" \
+		"$gradle_file"
+
+	grep -Fq "#!${TERMUX_PREFIX}/bin/sh" "$am_script" || return 1
+	grep -F 'buildConfigField "String", "TERMUX_PACKAGE_NAME"' "$gradle_file" | \
+		grep -Fq "$TERMUX_APP_PACKAGE" || return 1
 }
 
 termux_step_make() {
