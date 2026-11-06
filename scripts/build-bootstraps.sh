@@ -250,7 +250,8 @@ create_bootstrap_archive() {
 		zip -r9 "${BOOTSTRAP_TMPDIR}/bootstrap-${1}.zip" ./*
 	)
 
-	mv -f "${BOOTSTRAP_TMPDIR}/bootstrap-${1}.zip" "$TERMUX_PACKAGES_DIRECTORY/"
+	cp "${BOOTSTRAP_TMPDIR}/bootstrap-${1}.zip" "${BOOTSTRAP_TMPDIR}/../bootstrap-${1}.zip"
+	mv -f "${BOOTSTRAP_TMPDIR}/bootstrap-${1}.zip" "$TERMUX_PACKAGES_DIRECTORY/" || true
 
 	echo "[*] Finished successfully (${1})."
 
